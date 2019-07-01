@@ -1,0 +1,49 @@
+--[[*****************************************************************************
+	波撃つよ
+*****************************************************************************]]--
+
+local delegate = nil
+
+----------------------------------------------------------------------------
+function coSequence()
+	local angleCount = 0
+	local delay = 0
+	local selfTransform = self:GetComponent( typeof( CS.UnityEngine.Transform))
+	while true do
+		angle = CS.UnityEngine.Mathf.Sin( CS.UnityEngine.Mathf.PI * angleCount / 15) * 60
+
+		angleCount = angleCount + 1
+		dir = CS.UnityEngine.Quaternion.AngleAxis( angle, CS.UnityEngine.Vector3.forward) * CS.UnityEngine.Vector3.right
+
+		bullet = CS.UnityEngine.GameObject( '弾丸')
+		bullet:AddComponent( typeof( CS.BulletBehaviour))
+		textMesh = bullet:AddComponent( typeof( CS.UnityEngine.TextMesh))
+		textMesh.text = "弾"
+		rigidbody = bullet:AddComponent( typeof( CS.UnityEngine.Rigidbody))
+		rigidbody.transform.position = selfTransform.position
+		rigidbody.velocity = 100 * dir
+		rigidbody.useGravity = false
+
+		coroutine.yield()
+	end
+end
+----------------------------------------------------------------------------
+function awake()
+	delegate = coroutine.create( coSequence)
+end
+----------------------------------------------------------------------------
+function ondestroy()
+	delegate = nil
+end
+----------------------------------------------------------------------------
+function update()
+	if delegate ~= nil then
+		coroutine.resume( delegate)
+		if coroutine.status( delegate ) == "dead" then
+			delegate = nil
+		end
+	end
+end
+
+
+

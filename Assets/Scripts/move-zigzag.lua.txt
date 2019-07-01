@@ -1,0 +1,50 @@
+--[[*****************************************************************************
+	ジグザグに動くよ
+*****************************************************************************]]--
+
+local dirArray =
+{
+	CS.UnityEngine.Vector3.right,
+	CS.UnityEngine.Vector3.down,
+	CS.UnityEngine.Vector3.left,
+	CS.UnityEngine.Vector3.up,
+}
+
+----------------------------------------------------------------------------
+function coSequence()
+	local selfTransform = self:GetComponent( typeof( CS.UnityEngine.Transform))
+	local index = 1
+	while index <= #dirArray do
+		time = 0
+		while time < 0.5 do
+			time = time + CS.UnityEngine.Time.deltaTime
+			selfTransform.position = selfTransform.position + 0.25*dirArray[index]
+			coroutine.yield()
+		end
+		index = index + 1
+		if index > #dirArray then
+			index = index - #dirArray
+		end
+	end
+
+end
+----------------------------------------------------------------------------
+function awake()
+	colo = coroutine.create( coSequence)
+end
+----------------------------------------------------------------------------
+function ondestroy()
+	colo = nil
+end
+----------------------------------------------------------------------------
+function update()
+	if colo ~= nil then
+		coroutine.resume( colo)
+		if coroutine.status( colo ) == "dead" then
+			colo = nil
+		end
+	end
+end
+
+
+

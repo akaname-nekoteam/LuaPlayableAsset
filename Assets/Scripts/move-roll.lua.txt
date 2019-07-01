@@ -1,0 +1,38 @@
+--[[*****************************************************************************
+	ぐるぐる動くよ
+*****************************************************************************]]--
+
+----------------------------------------------------------------------------
+function coSequence()
+	local selfTransform = self:GetComponent( typeof( CS.UnityEngine.Transform))
+	local angle = 0
+	while true do
+
+		angle = angle + 5
+		dir = CS.UnityEngine.Quaternion.AngleAxis( angle, CS.UnityEngine.Vector3.forward) * CS.UnityEngine.Vector3.left
+		selfTransform.position = selfTransform.position + 0.5*dir
+		coroutine.yield()
+	end
+	
+
+end
+----------------------------------------------------------------------------
+function awake()
+	colo = coroutine.create( coSequence)
+end
+----------------------------------------------------------------------------
+function ondestroy()
+	colo = nil
+end
+----------------------------------------------------------------------------
+function update()
+	if colo ~= nil then
+		coroutine.resume( colo)
+		if coroutine.status( colo ) == "dead" then
+			colo = nil
+		end
+	end
+end
+
+
+
